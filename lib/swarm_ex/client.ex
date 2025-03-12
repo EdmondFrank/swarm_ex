@@ -85,7 +85,7 @@ defmodule SwarmEx.Client do
   @spec send_message(GenServer.server(), agent_id(), term()) ::
           {:ok, term()} | {:error, term()}
   def send_message(client, agent_id, message) do
-    GenServer.call(client, {:send_message, agent_id, message})
+    GenServer.call(client, {:send_message, agent_id, message}, :infinity)
   end
 
   @doc """
@@ -151,7 +151,7 @@ defmodule SwarmEx.Client do
   def handle_call({:send_message, agent_id, message}, _from, state) do
     case Map.fetch(state.active_agents, agent_id) do
       {:ok, pid} ->
-        result = GenServer.call(pid, {:message, message})
+        result = GenServer.call(pid, {:message, message}, :infinity)
         {:reply, result, state}
 
       :error ->
