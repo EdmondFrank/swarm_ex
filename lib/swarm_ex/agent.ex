@@ -605,7 +605,9 @@ defmodule SwarmEx.Agent do
   @spec stop(pid() | atom() | binary(), term()) :: :ok | {:error, term()}
   def stop(agent, reason \\ :normal) do
     try do
-      GenServer.stop(via_tuple(agent), reason)
+      if pid = GenServer.whereis(via_tuple(agent)) do
+        DynamicSupervisor.terminate_child(SwarmEx.AgentSupervisor, pid)
+      end
     catch
       :exit, {:noproc, _} ->
         {:error,
